@@ -20,7 +20,7 @@ public class MotoristGui extends JFrame{
 
 	private MotoristAgent myMotorist;
 	
-	private JTextField qtdCarSeatField;
+	private JTextField qtdCarSeatField, cityField;
 	
 	public MotoristGui(MotoristAgent motorist) {
 		super(motorist.getLocalName());
@@ -29,6 +29,9 @@ public class MotoristGui extends JFrame{
 		
 		JPanel p = new JPanel();
 		p.setLayout(new GridLayout(2, 2));
+		p.add(new JLabel("City:"));
+		cityField = new JTextField(15);
+		p.add(cityField);
 		p.add(new JLabel("Quantity car seat:"));
 		qtdCarSeatField = new JTextField(15);
 		p.add(qtdCarSeatField);
@@ -39,8 +42,9 @@ public class MotoristGui extends JFrame{
 			public void actionPerformed(ActionEvent ev) {
 				try {
 					String qtdCarSeat = qtdCarSeatField.getText().trim();
+					String city = cityField.getText().trim();
 					
-					myMotorist.updateCatalogue((myMotorist.getLocalName()).toString(), Integer.parseInt(qtdCarSeat));
+					myMotorist.updateCatalogue(city, Integer.parseInt(qtdCarSeat));
 					qtdCarSeatField.setText("");
 				}
 				catch (Exception e) {

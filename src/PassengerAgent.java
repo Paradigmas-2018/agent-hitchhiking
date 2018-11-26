@@ -89,7 +89,7 @@ public class PassengerAgent extends Agent {
 						cfp.addReceiver(motoristAgents[i]);
 					} 
 					cfp.setContent(targetQtdCarSeat);
-					cfp.setConversationId("book-trade");
+					cfp.setConversationId("hitchhiking");
 					cfp.setReplyWith("cfp"+System.currentTimeMillis()); // Unique value
 					myAgent.send(cfp);
 					// Prepare the template to get proposals
@@ -105,7 +105,9 @@ public class PassengerAgent extends Agent {
 						if (reply.getPerformative() == ACLMessage.PROPOSE) {
 							// This is an offer 
 							int qtdCarSeat = Integer.parseInt(reply.getContent());
-							if (bestMotorist == null || qtdCarSeat < bestCarSeat) {
+							System.out.println(qtdCarSeat);
+							System.out.println(bestMotorist);
+							if (bestMotorist == null || qtdCarSeat > bestCarSeat) {
 								// This is the best offer at present
 								bestCarSeat = qtdCarSeat;
 								bestMotorist = reply.getSender();
