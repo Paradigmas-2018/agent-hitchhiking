@@ -20,7 +20,7 @@ public class MotoristGui extends JFrame{
 
 	private MotoristAgent myMotorist;
 	
-	private JTextField qtdCarSeatField, cityField;
+	private JTextField qtdCarSeatField, actualCityField, destinationCityField;
 	
 	public MotoristGui(MotoristAgent motorist) {
 		super(motorist.getLocalName());
@@ -28,10 +28,13 @@ public class MotoristGui extends JFrame{
 		myMotorist = motorist;
 		
 		JPanel p = new JPanel();
-		p.setLayout(new GridLayout(2, 2));
-		p.add(new JLabel("City:"));
-		cityField = new JTextField(15);
-		p.add(cityField);
+		p.setLayout(new GridLayout(3, 2));
+		p.add(new JLabel("Actual City:"));
+		actualCityField = new JTextField(15);
+		p.add(actualCityField);
+		p.add(new JLabel("Destination City:"));
+		destinationCityField = new JTextField(15);
+		p.add(destinationCityField);
 		p.add(new JLabel("Quantity car seat:"));
 		qtdCarSeatField = new JTextField(15);
 		p.add(qtdCarSeatField);
@@ -42,10 +45,13 @@ public class MotoristGui extends JFrame{
 			public void actionPerformed(ActionEvent ev) {
 				try {
 					String qtdCarSeat = qtdCarSeatField.getText().trim();
-					String city = cityField.getText().trim();
+					String actualCity = actualCityField.getText().trim();
+					String destinationCity = destinationCityField.getText().trim();
 					
-					myMotorist.updateCatalogue(city, Integer.parseInt(qtdCarSeat));
+					myMotorist.updateCatalogue(actualCity, destinationCity, Integer.parseInt(qtdCarSeat));
 					qtdCarSeatField.setText("");
+					actualCityField.setText("");
+					destinationCityField.setText("");
 				}
 				catch (Exception e) {
 					JOptionPane.showMessageDialog(MotoristGui.this, "Invalid values. "+e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); 

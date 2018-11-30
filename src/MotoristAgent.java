@@ -1,6 +1,5 @@
-import java.util.Hashtable;
-import javax.swing.JTextField;
 import jade.core.behaviours.*;
+
 import jade.core.Agent;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
@@ -11,13 +10,12 @@ import jade.lang.acl.MessageTemplate;
 
 public class MotoristAgent extends Agent {
 	private static final long serialVersionUID = 1L;
-	// The catalogue of books for sale (maps the title of a book to its price)
-	private Hashtable<String,Integer> catalogue;
-	// The GUI by means of which the user can add books in the catalogue
+	
+	private Travel travel;
+	// The GUI by means of which the user can add hitchhiking
 	private MotoristGui myGui;
 	
 	protected void setup() {
-		catalogue = new Hashtable<String,Integer>();
 		
 		myGui = new MotoristGui(this);
 		myGui.showGui();
@@ -53,7 +51,6 @@ public class MotoristAgent extends Agent {
 	   with a PROPOSE message specifying the price. Otherwise a REFUSE message is
 	   sent back.
 	 */
-	// Servidor de Requisi��es de Ofertas
 	//FIPA PROTOCOLS: http://www.fipa.org/specs/fipa00030/
 	private class OfferRequestsServer extends CyclicBehaviour {
 		private static final long serialVersionUID = 1L;
@@ -62,17 +59,17 @@ public class MotoristAgent extends Agent {
 			ACLMessage msg = myAgent.receive(mt);
 			if (msg != null) {
 				// CFP Message received. Process it
-				String car = msg.getContent();
+				String destination = msg.getContent();
 				ACLMessage reply = msg.createReply();
 
-				Integer qtdCarSeat = (Integer) catalogue.get(car);
-				if (qtdCarSeat != null) {
-					// The requested car seat is available for hitch hicking. Reply with the price
+				boolean canHitchhiking = travel.getDestinationCity().equals(destination);
+				if (canHitchhiking == true && travel.getQuantitySeat() > 0) {
+					// The requested destination is available for hitchhicking. Reply with qtdSeat
 					reply.setPerformative(ACLMessage.PROPOSE);
-					reply.setContent(String.valueOf(qtdCarSeat.intValue()));
+					reply.setContent(String.valueOf(travel.getQuantitySeat().intValue()));
 				}
 				else {
-					// The requested book is NOT available for sale.
+					// The hitchhicking is NOT available for sale.
 					reply.setPerformative(ACLMessage.REFUSE);
 					reply.setContent("not-available");
 				}
@@ -103,13 +100,13 @@ public class MotoristAgent extends Agent {
 			ACLMessage msg = myAgent.receive(mt);
 			if (msg != null) {
 				// ACCEPT_PROPOSAL Message received. Process it
-				String car = msg.getContent();
+				String destination = msg.getContent();
 				ACLMessage reply = msg.createReply();
 
-				Integer qtdCarSeat = (Integer) catalogue.remove(car);
-				if (qtdCarSeat != null) {
+				travel.setQuantitySeat(travel.getQuantitySeat()-1);
+				if (travel != null) {
 					reply.setPerformative(ACLMessage.INFORM);
-					System.out.println(car+" sold to agent "+msg.getSender().getName());
+					System.out.println(destination+" match to "+msg.getSender().getName());
 				}
 				else {
 					// The requested book has been sold to another buyer in the meanwhile .
@@ -128,14 +125,15 @@ public class MotoristAgent extends Agent {
 	/**
     This is invoked by the GUI when the user adds a new car seat for available carpool
 	 */
-	public void updateCatalogue(final String car, final int qtdCarSeat) {
+	public void updateCatalogue(final String actualCity, final String destinationCity, final int qtdCarSeat) {
 		addBehaviour(new OneShotBehaviour() {
 
 			private static final long serialVersionUID = 1L;
 
 			public void action() {
-				catalogue.put(car, new Integer(qtdCarSeat));
-				System.out.println(car+" inserted into catalogue. Car Seat = "+qtdCarSeat);
+				
+				travel = new Travel(actualCity, destinationCity, qtdCarSeat);
+				System.out.println(travel+" inserted into catalogue. Car Seat = "+qtdCarSeat);
 			}
 		} );
 	}
