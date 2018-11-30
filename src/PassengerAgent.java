@@ -1,7 +1,10 @@
 
+import java.util.Hashtable;
+
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
+import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
@@ -13,18 +16,29 @@ import jade.lang.acl.MessageTemplate;
 public class PassengerAgent extends Agent {
 	private static final long serialVersionUID = 1L;
 	
-	private String targetQtdCarSeat;
+	private String city;
+	private Integer targetQtdCarSeat;
 	private AID[] motoristAgents;
 	
+	//private Hashtable<String,Integer> waitingList;
+	
+	private PassengerGui myGui;
 	// Put agent initializations here
 		protected void setup() {
+//			waitingList = new Hashtable<String,Integer>();
+						
+			myGui = new PassengerGui(this);
+			myGui.showGui();
+			
 			// Printout a welcome message
 			System.out.println("Hallo! Passenger-agent "+getAID().getName()+" is ready.");
 
+			
 			// Get the title of the book to buy as a start-up argument
-			Object[] args = getArguments();
-			if (args != null && args.length > 0) {
-				targetQtdCarSeat = (String) args[0];
+//			Object[] args = getArguments();
+//			System.out.println("Argumentos: "+getArguments());
+//			if (myGui.!waitingList.isEmpty()){
+//				targetQtdCarSeat = waitingList;
 				System.out.println("Target quantity car seat is " + targetQtdCarSeat);
 
 				// Add a TickerBehaviour that schedules a request to motorists agents every 10 seconds
@@ -58,12 +72,12 @@ public class PassengerAgent extends Agent {
 						myAgent.addBehaviour(new RequestPerformer());
 					}
 				} );
-			}
-			else {
-				// Make the agent terminate
-				System.out.println("No target car seat specified");
-				doDelete();
-			}
+//			}
+//			else {
+//				// Make the agent terminate
+//				System.out.println("No target car seat specified");
+//				doDelete();
+//			}
 		}
 		
 		/**
@@ -88,7 +102,7 @@ public class PassengerAgent extends Agent {
 					for (int i = 0; i < motoristAgents.length; ++i) {
 						cfp.addReceiver(motoristAgents[i]);
 					} 
-					cfp.setContent(targetQtdCarSeat);
+					cfp.setContent((String)targetQtdCarSeat.toString());
 					cfp.setConversationId("hitchhiking");
 					cfp.setReplyWith("cfp"+System.currentTimeMillis()); // Unique value
 					myAgent.send(cfp);
@@ -127,7 +141,7 @@ public class PassengerAgent extends Agent {
 					// Send the purchase order to the seller that provided the best offer
 					ACLMessage order = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
 					order.addReceiver(bestMotorist);
-					order.setContent(targetQtdCarSeat);
+					order.setContent((String)targetQtdCarSeat.toString());
 					order.setConversationId("hitchhiking");
 					order.setReplyWith("order"+System.currentTimeMillis());
 					myAgent.send(order);
@@ -184,4 +198,24 @@ public class PassengerAgent extends Agent {
 		}
 	}  // End of inner class RequestPerformer
 
+		
+	/**
+    This is invoked by the GUI when the user adds a new car seat for available carpool
+	 */
+	public void updatePassenger(final String destinationCity, final int qtdCarSeat) {
+		addBehaviour(new OneShotBehaviour() {
+				
+			private static final long serialVersionUID = 1L;
+
+			public void action() {
+				System.out.println("Atualizando...");
+				targetQtdCarSeat = qtdCarSeat;
+				city = destinationCity;
+				System.out.println("Passenger " + getAID().getName() + 
+						" inserted into waiting list to hichhiking. Destination city: "+ city + 
+						"Request Car Seat = "+qtdCarSeat);
+			}
+		} );
+	}	
+		
 }
