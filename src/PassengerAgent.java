@@ -105,8 +105,7 @@ public class PassengerAgent extends Agent {
 						if (reply.getPerformative() == ACLMessage.PROPOSE) {
 							// This is an offer 
 							int qtdCarSeat = Integer.parseInt(reply.getContent());
-							System.out.println(qtdCarSeat);
-							System.out.println(bestMotorist);
+							
 							if (bestMotorist == null || qtdCarSeat > bestCarSeat) {
 								// This is the best offer at present
 								bestCarSeat = qtdCarSeat;
